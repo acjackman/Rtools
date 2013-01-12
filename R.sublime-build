@@ -1,3 +1,5 @@
 {
-  "cmd": ["osascript", "-e", "tell app \"R64\" to cmd \"source('$file')\"\n"]
+    "selector": "source.r",
+    "target": "r_source_file",
+    "cmd": "$file"
 }

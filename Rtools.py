@@ -31,6 +31,23 @@ class SendToRappCommand(sublime_plugin.WindowCommand):
         subprocess.Popen(args)
 
 
+class RSourceFileCommand(sublime_plugin.WindowCommand):
+    """Source Current File in R"""
+    def run(self, *args, **kwargs):
+        # Get the given filepath
+        filepath = kwargs.get('filepath', "")
+        force_run = kwargs.get('force', False)
+        if filepath == "":
+            # if not passed a filename, assume the windows active file
+            filepath = self.window.active_view().file_name()
+
+        # Check to see if it is an R file that would run if sourced, unless forced to
+        if os.path.splitext(filepath)[1] == ".R" or force_run:  # Any other extensions that should be allowed?
+            self.window.run_command("send_to_rapp", {"lines": "source(\"" + filepath + "\")\n"})
+        else:
+            sublime.error_message("Not a .R file.")
+
+
 class RDocsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         sel = self.view.sel()[0]
