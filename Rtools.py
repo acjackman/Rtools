@@ -111,6 +111,14 @@ class SendSelectionCommand(sublime_plugin.TextCommand):
         self.view.sel().add(sublime.Region(loc, loc))
 
 
+class RSetWorkingDirectoryCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        filepath = self.window.active_view().file_name()
+        current_directory = os.path.dirname(filepath)
+        sublime.message_dialog(current_directory)
+        self.window.run_command("send_to_rapp", {"lines": "setwd('" + current_directory + "')\n"})
+
+
 class RPromptCommand(sublime_plugin.WindowCommand):
     def run(self):
         self.get_window().show_input_panel("R Prompt", "",
