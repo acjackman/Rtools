@@ -4,7 +4,6 @@ import os
 import subprocess
 import string
 
-
 class RDocsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         sel = self.view.sel()[0]
@@ -61,7 +60,6 @@ class SendSelectionCommand(sublime_plugin.TextCommand):
         # execute code
         subprocess.Popen(args)
 
-
     def advanceCursor(self, region):
         (row, col) = self.view.rowcol(region.begin())
 
@@ -75,3 +73,20 @@ class SendSelectionCommand(sublime_plugin.TextCommand):
         # Remove the old region and add the new one
         self.view.sel().subtract(region)
         self.view.sel().add(sublime.Region(loc, loc))
+
+
+class RPromptCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        self.get_window().show_input_panel("R Prompt", "",
+            self.on_input, None, None)
+
+    def get_window(self):
+        return self.window
+
+    def on_input(self, rcommand):
+        if rcommand.strip() == "":
+            self.panel("No branch name provided")
+            return
+        args = ['osascript', '-e', 'tell app "R64" to cmd "' + rcommand.strip() + '"\n']
+
+        subprocess.Popen(args)
