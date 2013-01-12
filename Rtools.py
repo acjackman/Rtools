@@ -4,6 +4,33 @@ import os
 import subprocess
 import string
 
+
+class SendToRappCommand(sublime_plugin.WindowCommand):
+    """Sends lines to R"""
+    @staticmethod
+    def cleanString(str):
+        str = string.replace(str, '\\', '\\\\')
+        str = string.replace(str, '"', '\\"')
+        return str
+
+    def run(self, lines):
+        s = sublime.load_settings("Rtools.sublime-settings")
+        app = s.get("r_gui")
+
+        # define osascript arguments
+        args = ['osascript']
+
+        if s.get("r_submit_single_lines"):
+            # add code lines to list of arguments individually
+            lines = self.cleanString(lines).split("\n")
+            for part in lines:
+                args.extend(['-e', 'tell app "' + app + '" to cmd "' + part + '"\n'])
+        else:
+            args.extend(['-e', 'tell app "' + app + '" to cmd "' + self.cleanString(lines) + '"\n'])
+        # execute code
+        subprocess.Popen(args)
+
+
 class RDocsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         sel = self.view.sel()[0]
@@ -50,15 +77,7 @@ class SendSelectionCommand(sublime_plugin.TextCommand):
         if(selection == ""):
             return
 
-        # split selection into lines
-        selection = self.cleanString(selection).split("\n")
-        # define osascript arguments
-        args = ['osascript']
-        # add code lines to list of arguments
-        for part in selection:
-            args.extend(['-e', 'tell app "R64" to cmd "' + part + '"\n'])
-        # execute code
-        subprocess.Popen(args)
+        self.view.window().run_command("send_to_rapp", {"lines": selection})
 
     def advanceCursor(self, region):
         (row, col) = self.view.rowcol(region.begin())
@@ -85,8 +104,5 @@ class RPromptCommand(sublime_plugin.WindowCommand):
 
     def on_input(self, rcommand):
         if rcommand.strip() == "":
-            self.panel("No branch name provided")
             return
-        args = ['osascript', '-e', 'tell app "R64" to cmd "' + rcommand.strip() + '"\n']
-
-        subprocess.Popen(args)
+        self.window.run_command("send_to_rapp", {"lines": rcommand})

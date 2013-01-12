@@ -1,0 +1,7 @@
+{
+    // Choose to submit single lines, or chunks (a la TextMate)
+    "r_submit_single_lines" : true,
+
+    //Set the R.app to use, either R or R64
+    "r_gui": "R64"
+}
